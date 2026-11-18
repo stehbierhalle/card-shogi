@@ -1,176 +1,63 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>5x5 カード将棋 プロトタイプ</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>5x5 カード将棋 プロトタイプ</title>
+<style>
+  body { font-family: sans-serif; background: #2c3e50; color: #ecf0f1; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+  h1 { margin: 0 0 10px 0; font-size: 20px; }
+  #info-bar { display: flex; gap: 20px; background: #34495e; padding: 10px 20px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; }
+  .warn { color: #e74c3c; }
+  #game-container { display: flex; gap: 30px; align-items: flex-start; }
+  .board-area { display: flex; flex-direction: column; align-items: center; }
+  .hand-pieces { min-height: 36px; display: flex; gap: 5px; margin: 5px 0; background: #34495e; padding: 5px 10px; border-radius: 5px; width: 260px; align-items: center; }
+  .piece-btn { background: #f39c12; color: #000; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+  .piece-btn.selected { outline: 3px solid #e74c3c; }
+  #board { display: grid; grid-template-columns: repeat(5, 55px); grid-template-rows: repeat(5, 55px); gap: 2px; background: #8e44ad; padding: 4px; border-radius: 4px; }
+  .cell { width: 55px; height: 55px; background: #f5deb3; color: #2c3e50; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: bold; cursor: pointer; user-select: none; }
+  .cell.enemy { transform: rotate(180deg); color: #c0392b; }
+  .cell.selected { background: #f1c40f; }
+  .cell.movable { background: #a3e4d7; }
+  #card-area { width: 320px; background: #34495e; padding: 15px; border-radius: 8px; }
+  #card-area h3 { margin-top: 0; }
+  .card { background: #ecf0f1; color: #2c3e50; padding: 10px; border-radius: 6px; margin-bottom: 10px; cursor: pointer; border: 3px solid transparent; transition: 0.1s; }
+  .card:hover { transform: translateY(-2px); }
+  .card.selected { border-color: #e74c3c; background: #fadbd8; }
+  .card.disabled { opacity: 0.5; cursor: not-allowed; }
+  .card-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px; }
+  .mana-cost { background: #2980b9; color: white; padding: 2px 6px; border-radius: 10px; font-size: 12px; }
+  .card-desc { font-size: 13px; color: #555; }
+  #log { margin-top: 15px; font-size: 13px; color: #bdc3c7; height: 80px; overflow-y: auto; background: #1a252f; padding: 8px; border-radius: 4px; width: 610px; }
+</style>
 </head>
 <body>
 
-  <h1>5×5 カード将棋 プロトタイプ</h1>
+<h1>5×5 カード将棋 プロトタイプ</h1>
 
-  <div id="info-bar">
-    <div id="turn-display">手番: 先手 (下)</div>
-    <div id="mana-display">マナ: 1 / 1</div>
-    <div id="status-display"></div>
+<div id="info-bar">
+  <div id="turn-display">手番: 先手 (下)</div>
+  <div id="mana-display">マナ: 1 / 1</div>
+  <div id="status-display"></div>
+</div>
+
+<div id="game-container">
+  <div class="board-area">
+    <div>後手 持ち駒:</div>
+    <div id="hand-enemy" class="hand-pieces"></div>
+    <div id="board"></div>
+    <div>先手 持ち駒:</div>
+    <div id="hand-player" class="hand-pieces"></div>
   </div>
 
-  <div id="game-container">
-    <div class="board-area">
-      <div>後手 持ち駒:</div>
-      <div id="hand-enemy" class="hand-pieces"></div>
-      <div id="board"></div>
-      <div>先手 持ち駒:</div>
-      <div id="hand-player" class="hand-pieces"></div>
-    </div>
-
-    <div id="card-area">
-      <h3>手札（クリックして選択）</h3>
-      <div id="hand-cards"></div>
-    </div>
+  <div id="card-area">
+    <h3>手札（クリックして選択）</h3>
+    <div id="hand-cards"></div>
   </div>
+</div>
 
-  <div id="log"></div>
+<div id="log"></div>
 
-  <!-- 3つのJSファイルを順番に読み込み -->
-  <script src="data.js"></script>
-  <script src="logic.js"></script>
-  <script src="main.js"></script>
-</body>
-</html>
-body {
-  font-family: sans-serif;
-  background: #2c3e50;
-  color: #ecf0f1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0;
-  padding: 20px;
-}
-
-h1 { margin: 0 0 10px 0; font-size: 20px; }
-
-#info-bar {
-  display: flex;
-  gap: 20px;
-  background: #34495e;
-  padding: 10px 20px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  font-weight: bold;
-}
-
-.warn { color: #e74c3c; }
-
-#game-container { display: flex; gap: 30px; align-items: flex-start; }
-
-.board-area { display: flex; flex-direction: column; align-items: center; }
-
-.hand-pieces {
-  min-height: 36px;
-  display: flex;
-  gap: 5px;
-  margin: 5px 0;
-  background: #34495e;
-  padding: 5px 10px;
-  border-radius: 5px;
-  width: 260px;
-  align-items: center;
-}
-
-.piece-btn {
-  background: #f39c12;
-  color: #000;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.piece-btn.selected { outline: 3px solid #e74c3c; }
-
-#board {
-  display: grid;
-  grid-template-columns: repeat(5, 55px);
-  grid-template-rows: repeat(5, 55px);
-  gap: 2px;
-  background: #8e44ad;
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.cell {
-  width: 55px;
-  height: 55px;
-  background: #f5deb3;
-  color: #2c3e50;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
-  user-select: none;
-}
-
-.cell.enemy { transform: rotate(180deg); color: #c0392b; }
-.cell.selected { background: #f1c40f; }
-.cell.movable { background: #a3e4d7; }
-
-#card-area {
-  width: 320px;
-  background: #34495e;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-#card-area h3 { margin-top: 0; }
-
-.card {
-  background: #ecf0f1;
-  color: #2c3e50;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  border: 3px solid transparent;
-  transition: 0.1s;
-}
-
-.card:hover { transform: translateY(-2px); }
-.card.selected { border-color: #e74c3c; background: #fadbd8; }
-.card.disabled { opacity: 0.5; cursor: not-allowed; }
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-
-.mana-cost {
-  background: #2980b9;
-  color: white;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-.card-desc { font-size: 13px; color: #555; }
-
-#log {
-  margin-top: 15px;
-  font-size: 13px;
-  color: #bdc3c7;
-  height: 80px;
-  overflow-y: auto;
-  background: #1a252f;
-  padding: 8px;
-  border-radius: 4px;
-  width: 610px;
-}
+<script>
 const GOLD_MOVES = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,1], [1,0]];
 
 const PIECES = {
@@ -252,6 +139,79 @@ function endTurn() {
 function log(msg) {
   const el = document.getElementById('log');
   el.innerHTML = `<div>> ${msg}</div>` + el.innerHTML;
+}
+
+function getValidMoves(r, c, targetBoard = board) {
+  const piece = targetBoard[r][c];
+  if (!piece) return [];
+  const def = PIECES[piece.type];
+  const dir = piece.owner;
+  let moves = [];
+
+  const canEnter = (nr, nc) => {
+    if (nr < 0 || nr >= 5 || nc < 0 || nc >= 5) return false;
+    const target = targetBoard[nr][nc];
+    if (!target) return true;
+    if (target.owner === piece.owner) return false;
+    if (cardUsedThisTurn && target.type === '王') return false;
+    return true;
+  };
+
+  if (def.moves) {
+    def.moves.forEach(([dr, dc]) => {
+      const nr = r + (dr * dir);
+      const nc = c + (dc * dir);
+      if (canEnter(nr, nc)) moves.push([nr, nc]);
+    });
+  }
+
+  if (def.slide) {
+    def.slide.forEach(([dr, dc]) => {
+      let nr = r + (dr * dir);
+      let nc = c + (dc * dir);
+      while (nr >= 0 && nr < 5 && nc >= 0 && nc < 5) {
+        const target = targetBoard[nr][nc];
+        if (!target) {
+          moves.push([nr, nc]);
+        } else {
+          if (canEnter(nr, nc)) moves.push([nr, nc]);
+          break;
+        }
+        nr += (dr * dir);
+        nc += (dc * dir);
+      }
+    });
+  }
+  return moves;
+}
+
+function isGivingCheck(attackerOwner, testBoard) {
+  let enemyKingPos = null;
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const p = testBoard[r][c];
+      if (p && p.owner !== attackerOwner && p.type === '王') enemyKingPos = [r, c];
+    }
+  }
+  if (!enemyKingPos) return false;
+
+  const prevFlag = cardUsedThisTurn;
+  cardUsedThisTurn = false;
+  let check = false;
+
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const p = testBoard[r][c];
+      if (p && p.owner === attackerOwner) {
+        const moves = getValidMoves(r, c, testBoard);
+        if (moves.some(([mr, mc]) => mr === enemyKingPos[0] && mc === enemyKingPos[1])) {
+          check = true;
+        }
+      }
+    }
+  }
+  cardUsedThisTurn = prevFlag;
+  return check;
 }
 
 function onCellClick(r, c) {
@@ -346,195 +306,50 @@ function onCardClick(idx) {
   }
 }
 
-function render() {
+function executeTargetCard(r, c) {
   const pState = state[turn];
-  document.getElementById('turn-display').innerText = `手番: ${turn === 1 ? '先手 (下)' : '後手 (上)'}`;
-  document.getElementById('mana-display').innerText = `マナ: ${pState.mana} / ${pState.maxMana}`;
+  const card = pState.cards[selectedCard];
+  const target = board[r][c];
+  if (!target) return;
 
-  const statusEl = document.getElementById('status-display');
-  statusEl.innerHTML = cardUsedThisTurn ? `<span class="warn">※カード使用済（王将の捕獲不可）</span>` : '';
+  let testBoard = board.map(row => row.map(cell => cell ? { ...cell } : null));
+  let valid = false;
 
-  const boardEl = document.getElementById('board');
-  boardEl.innerHTML = '';
-  const movableCells = selectedCell ? getValidMoves(selectedCell.r, selectedCell.c) : [];
-
-  for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
-      const cellEl = document.createElement('div');
-      cellEl.className = 'cell';
-      const piece = board[r][c];
-      if (piece) {
-        cellEl.innerText = PIECES[piece.type].name;
-        if (piece.owner === -1) cellEl.classList.add('enemy');
-      }
-      if (selectedCell && selectedCell.r === r && selectedCell.c === c) cellEl.classList.add('selected');
-      if (movableCells.some(([mr, mc]) => mr === r && mc === c)) cellEl.classList.add('movable');
-      cellEl.onclick = () => onCellClick(r, c);
-      boardEl.appendChild(cellEl);
+  if (card.id === 'step' && target.owner === turn) {
+    const nr = r - turn;
+    if (nr >= 0 && nr < 5 && !testBoard[nr][c]) {
+      testBoard[nr][c] = testBoard[r][c];
+      testBoard[r][c] = null;
+      valid = true;
+    }
+  } else if (card.id === 'push' && target.owner !== turn && target.type !== '王') {
+    const nr = r - turn;
+    if (nr >= 0 && nr < 5 && !testBoard[nr][c]) {
+      testBoard[nr][c] = testBoard[r][c];
+      testBoard[r][c] = null;
+      valid = true;
     }
   }
 
-  renderHandPieces('hand-player', 1);
-  renderHandPieces('hand-enemy', -1);
-
-  const cardsEl = document.getElementById('hand-cards');
-  cardsEl.innerHTML = '';
-  pState.cards.forEach((card, idx) => {
-    const cEl = document.createElement('div');
-    cEl.className = 'card';
-    if (pState.mana < card.cost) cEl.classList.add('disabled');
-    if (selectedCard === idx) cEl.classList.add('selected');
-    cEl.innerHTML = `
-      <div class="card-header">
-        <span>${card.name}</span>
-        <span class="mana-cost">マナ ${card.cost}</span>
-      </div>
-      <div class="card-desc">${card.desc}</div>
-    `;
-    cEl.onclick = () => onCardClick(idx);
-    cardsEl.appendChild(cEl);
-  });
-}
-
-function renderHandPieces(elementId, owner) {
-  const el = document.getElementById(elementId);
-  el.innerHTML = '';
-  state[owner].handPieces.forEach((pType, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'piece-btn';
-    if (turn === owner && selectedHandPiece === idx) btn.classList.add('selected');
-    btn.innerText = pType;
-    btn.onclick = () => {
-      if (turn === owner && !gameOver) {
-        selectedCell = null;
-        selectedCard = null;
-        selectedHandPiece = (selectedHandPiece === idx) ? null : idx;
-        render();
-      }
-    };
-    el.appendChild(btn);
-  });
-}
-
-initGame();
-// ゲーム初期化
-function initGame() {
-  board = Array(5).fill(null).map(() => Array(5).fill(null));
-  const backRow = ['飛', '角', '銀', '金', '王'];
-  for (let c = 0; c < 5; c++) {
-    board[0][4 - c] = { type: backRow[c], owner: -1 }; // 後手1段目
-    board[4][c] = { type: backRow[c], owner: 1 };      // 先手5段目
+  if (!valid) {
+    log('その対象にはカードを使えません。');
+    return;
   }
-  board[1][4] = { type: '歩', owner: -1 }; // 後手の歩
-  board[3][0] = { type: '歩', owner: 1 };  // 先手の歩
 
-  [1, -1].forEach(p => {
-    let deck = [];
-    CARD_POOL.forEach(c => { for (let i = 0; i < 3; i++) deck.push({ ...c }); });
-    state[p].deck = deck.sort(() => Math.random() - 0.5);
-    drawCard(p, 3);
-  });
-
-  log('ゲーム開始！カードを使うか、駒を動かしてください。');
-  render();
-}
-
-function drawCard(player, count = 1) {
-  for (let i = 0; i < count; i++) {
-    if (state[player].deck.length > 0 && state[player].cards.length < 5) {
-      state[player].cards.push(state[player].deck.pop());
-    }
+  if (isGivingCheck(turn, testBoard)) {
+    log('⚠️ 反則：カード効果で直接王手をかけることはできません！');
+    return;
   }
-}
 
-function endTurn() {
-  selectedCell = null;
-  selectedHandPiece = null;
+  board = testBoard;
+  pState.mana -= card.cost;
+  pState.cards.splice(selectedCard, 1);
   selectedCard = null;
-  cardUsedThisTurn = false;
-
-  turn *= -1;
-  const pState = state[turn];
-  if (pState.maxMana < 10) pState.maxMana++;
-  pState.mana = pState.maxMana;
-  drawCard(turn, 1);
-
-  log(`--- ${turn === 1 ? '先手' : '後手'}のターン (マナ: ${pState.mana}) ---`);
+  cardUsedThisTurn = true;
+  log(`【${card.name}】発動！（このターン王は取れません）`);
   render();
 }
 
-function log(msg) {
-  const el = document.getElementById('log');
-  el.innerHTML = `<div>> ${msg}</div>` + el.innerHTML;
-}
-
-// 盤面クリック時
-function onCellClick(r, c) {
-  if (gameOver) return;
-
-  if (selectedCard !== null) {
-    executeTargetCard(r, c);
-    return;
-  }
-
-  if (selectedHandPiece !== null) {
-    if (!board[r][c]) {
-      const pieceType = state[turn].handPieces.splice(selectedHandPiece, 1)[0];
-      board[r][c] = { type: pieceType, owner: turn };
-      log(`${turn === 1 ? '先手' : '後手'}が「${pieceType}」を打ちました。`);
-      endTurn();
-    }
-    return;
-  }
-
-  if (selectedCell) {
-    const validMoves = getValidMoves(selectedCell.r, selectedCell.c);
-    if (validMoves.some(([mr, mc]) => mr === r && mc === c)) {
-      movePiece(selectedCell.r, selectedCell.c, r, c);
-      return;
-    }
-  }
-
-  const clicked = board[r][c];
-  selectedCell = (clicked && clicked.owner === turn) ? { r, c } : null;
-  selectedHandPiece = null;
-  render();
-}
-
-// カードクリック時
-function onCardClick(idx) {
-  if (gameOver) return;
-  const pState = state[turn];
-  const card = pState.cards[idx];
-
-  if (pState.mana < card.cost) {
-    log('マナが足りません！');
-    return;
-  }
-
-  selectedCell = null;
-  selectedHandPiece = null;
-
-  if (card.type === 'instant') {
-    pState.mana -= card.cost;
-    pState.cards.splice(idx, 1);
-    cardUsedThisTurn = true;
-
-    if (card.id === 'draw') {
-      drawCard(turn, 2);
-      log(`【${card.name}】発動！カードを2枚引きました。`);
-    } else if (card.id === 'summon') {
-      pState.handPieces.push('歩', '歩');
-      log(`【${card.name}】発動！持ち駒に「歩」を2枚加えました。`);
-    }
-    render();
-  } else {
-    selectedCard = (selectedCard === idx) ? null : idx;
-    render();
-  }
-}
-
-// 画面描画
 function render() {
   const pState = state[turn];
   document.getElementById('turn-display').innerText = `手番: ${turn === 1 ? '先手 (下)' : '後手 (上)'}`;
@@ -605,5 +420,7 @@ function renderHandPieces(elementId, owner) {
   });
 }
 
-// ゲーム開始
 initGame();
+</script>
+</body>
+</html>
